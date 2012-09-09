@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="BillMonk" database="MySql" >
+	<schema name="billmonk" schemaname="billmonk" defo="y" >
+		<table name="user_info" >
+			<column name="user_id" type="VARCHAR" length="20" jt="12" mandatory="y" />
+			<column name="password" type="VARCHAR" length="20" jt="12" mandatory="y" />
+			<column name="user_name" type="VARCHAR" length="100" jt="12" />
+			<column name="user_iowe" type="REAL" length="7" decimal="2" jt="8" />
+			<column name="user_iget" type="REAL" length="7" decimal="2" jt="8" />
+			<index name="pk_user_info" unique="PRIMARY_KEY" >
+				<column name="user_id" />
+			</index>
+			<index name="pk_user_info_0" unique="UNIQUE" >
+				<column name="user_id" />
+				<column name="password" />
+			</index>
+		</table>
+		<table name="bills" >
+			<column name="bill_id" type="INT" jt="4" mandatory="y" autoincrement="y" />
+			<column name="title" type="VARCHAR" length="100" jt="12" mandatory="y" />
+			<column name="bill_items_id" type="INT" jt="4" />
+			<column name="users_paid_id" type="INT" jt="4" mandatory="y" />
+			<index name="pk_bills" unique="PRIMARY_KEY" >
+				<column name="bill_id" />
+			</index>
+		</table>
+		<table name="bill_items" >
+			<column name="bill_id" type="INT" jt="4" />
+			<column name="item_name" type="VARCHAR" length="100" jt="12" mandatory="y" />
+			<column name="price" type="REAL" length="7" decimal="2" jt="8" mandatory="y" />
+			<column name="users_involved_id" type="INT" jt="4" mandatory="y" />
+			<index name="idx_bill_items" unique="NORMAL" >
+				<column name="bill_id" />
+				<column name="item_name" />
+			</index>
+			<fk name="fk_bill_items_bills" to_schema="billmonk" to_table="bills" delete_action="CASCADE" >
+				<fk_column name="bill_id" pk="bill_id" />
+			</fk>
+		</table>
+		<table name="users_involved" >
+			<column name="users_involved_id" type="INT" jt="4" />
+			<column name="amount" type="REAL" length="7" decimal="2" jt="8" mandatory="y" />
+			<index name="idx_users_involved" unique="NORMAL" >
+				<column name="users_involved_id" />
+			</index>
+			<fk name="fk_users_involved_user_info" to_schema="billmonk" to_table="user_info" delete_action="CASCADE" >
+				<fk_column name="users_involved_id" pk="user_id" />
+			</fk>
+		</table>
+		<table name="current_state" >
+			<column name="user_id_1" type="INT" jt="4" />
+			<column name="user_id_2" type="INT" jt="4" />
+			<column name="amount" type="REAL" length="7" decimal="2" jt="8" />
+			<index name="idx_current_state" unique="NORMAL" >
+				<column name="user_id_1" />
+				<column name="user_id_2" />
+			</index>
+			<fk name="fk_current_state_user_info" to_schema="billmonk" to_table="user_info" >
+				<fk_column name="user_id_1" pk="user_id" />
+				<fk_column name="user_id_2" pk="password" />
+			</fk>
+		</table>
+	</schema>
+	<connector name="Sqlite" database="Sqlite" driver_class="org.sqlite.JDBC" driver_jar="sqlite-jdbc-3.7.6.3.jar" host="localhost" port="7210" instance="C:/Users/purujitb/Documents/billmonk.dbs" schema_mapping="" />
+	<layout name="BillMonk" show_relation_columns="y" >
+		<entity schema="billmonk" name="user_info" x="56" y="42" />
+		<entity schema="billmonk" name="bill_items" x="490" y="224" />
+		<entity schema="billmonk" name="users_involved" x="42" y="210" />
+		<entity schema="billmonk" name="bills" x="308" y="224" />
+		<entity schema="billmonk" name="current_state" x="308" y="42" />
+		<script name="Sql" >
+			<string> <![CDATA[CREATE SCHEMA billmonk;
+
+CREATE TABLE billmonk.user_info ( 
+	user_id              VARCHAR( 20 ) NOT NULL,
+	password             VARCHAR( 20 ) NOT NULL,
+	user_name            VARCHAR( 100 ),
+	user_iowe            REAL( 7, 2 ),
+	user_iget            REAL( 7, 2 ),
+	CONSTRAINT pk_user_info PRIMARY KEY ( user_id ),
+	CONSTRAINT pk_user_info_0 UNIQUE ( user_id, password )
+ );
+
+CREATE TABLE billmonk.bills ( 
+	bill_id              INT NOT NULL AUTO_INCREMENT,
+	title                VARCHAR( 100 ) NOT NULL,
+	bill_items_id        INT,
+	users_paid_id        INT NOT NULL,
+	CONSTRAINT pk_bills PRIMARY KEY ( bill_id )
+ );
+
+CREATE TABLE billmonk.bill_items ( 
+	bill_id              INT,
+	item_name            VARCHAR( 100 ) NOT NULL,
+	price                REAL( 7, 2 ) NOT NULL,
+	users_involved_id    INT NOT NULL
+ );
+
+CREATE INDEX idx_bill_items ON billmonk.bill_items ( bill_id, item_name );
+
+CREATE TABLE billmonk.users_involved ( 
+	users_involved_id    INT,
+	amount               REAL( 7, 2 ) NOT NULL
+ );
+
+CREATE INDEX idx_users_involved ON billmonk.users_involved ( users_involved_id );
+
+CREATE TABLE billmonk.current_state ( 
+	user_id_1            INT,
+	user_id_2            INT,
+	amount               REAL( 7, 2 )
+ );
+
+CREATE INDEX idx_current_state ON billmonk.current_state ( user_id_1, user_id_2 );
+
+ALTER TABLE billmonk.bill_items ADD CONSTRAINT fk_bill_items_bills FOREIGN KEY ( bill_id ) REFERENCES billmonk.bills( bill_id ) ON DELETE CASCADE ON UPDATE NO ACTION;
+
+ALTER TABLE billmonk.users_involved ADD CONSTRAINT fk_users_involved_user_info FOREIGN KEY ( users_involved_id ) REFERENCES billmonk.user_info( user_id ) ON DELETE CASCADE ON UPDATE NO ACTION;
+
+ALTER TABLE billmonk.current_state ADD CONSTRAINT fk_current_state_user_info FOREIGN KEY ( user_id_1, user_id_2 ) REFERENCES billmonk.user_info( user_id, password ) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+]]> </string>
+		</script>
+	</layout>
+</project>
