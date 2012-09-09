@@ -40,11 +40,13 @@
 		<table name="users_involved" >
 			<column name="users_involved_id" type="INT" jt="4" />
 			<column name="amount" type="REAL" length="7" decimal="2" jt="8" mandatory="y" />
+			<column name="user_id" type="INT" jt="4" />
 			<index name="idx_users_involved" unique="NORMAL" >
 				<column name="users_involved_id" />
+				<column name="user_id" />
 			</index>
 			<fk name="fk_users_involved_user_info" to_schema="billmonk" to_table="user_info" delete_action="CASCADE" >
-				<fk_column name="users_involved_id" pk="user_id" />
+				<fk_column name="user_id" pk="user_id" />
 			</fk>
 		</table>
 		<table name="current_state" >
@@ -65,9 +67,9 @@
 	<layout name="BillMonk" show_relation_columns="y" >
 		<entity schema="billmonk" name="user_info" x="56" y="42" />
 		<entity schema="billmonk" name="bill_items" x="490" y="224" />
-		<entity schema="billmonk" name="users_involved" x="42" y="210" />
 		<entity schema="billmonk" name="bills" x="308" y="224" />
 		<entity schema="billmonk" name="current_state" x="308" y="42" />
+		<entity schema="billmonk" name="users_involved" x="42" y="210" />
 		<script name="Sql" >
 			<string> <![CDATA[CREATE SCHEMA billmonk;
 
