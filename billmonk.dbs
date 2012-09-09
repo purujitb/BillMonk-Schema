@@ -33,6 +33,9 @@
 				<column name="bill_id" />
 				<column name="item_name" />
 			</index>
+			<index name="pk_bill_items" unique="UNIQUE" >
+				<column name="users_involved_id" />
+			</index>
 			<fk name="fk_bill_items_bills" to_schema="billmonk" to_table="bills" delete_action="CASCADE" >
 				<fk_column name="bill_id" pk="bill_id" />
 			</fk>
@@ -45,8 +48,14 @@
 				<column name="users_involved_id" />
 				<column name="user_id" />
 			</index>
+			<index name="idx_users_involved_0" unique="NORMAL" >
+				<column name="users_involved_id" />
+			</index>
 			<fk name="fk_users_involved_user_info" to_schema="billmonk" to_table="user_info" delete_action="CASCADE" >
 				<fk_column name="user_id" pk="user_id" />
+			</fk>
+			<fk name="fk_users_involved_bill_items" to_schema="billmonk" to_table="bill_items" >
+				<fk_column name="users_involved_id" pk="users_involved_id" />
 			</fk>
 		</table>
 		<table name="current_state" >
